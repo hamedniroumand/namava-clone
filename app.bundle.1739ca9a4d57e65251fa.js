@@ -1,287 +1,61 @@
 /******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 255:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ 54:
+/***/ (() => {
 
+var oldScroll = 0;
+document.addEventListener("scroll", function (event) {
+  scrollHandler();
+});
 
-/* eslint-env browser */
+var scrollHandler = function scrollHandler() {
+  var nav = document.getElementsByTagName("nav")[0];
+  var topOfWindow = window.scrollY;
 
-/*
-  eslint-disable
-  no-console,
-  func-names
-*/
-
-var normalizeUrl = __webpack_require__(563);
-
-var srcByModuleId = Object.create(null);
-var noDocument = typeof document === 'undefined';
-var forEach = Array.prototype.forEach;
-
-function debounce(fn, time) {
-  var timeout = 0;
-  return function () {
-    var self = this; // eslint-disable-next-line prefer-rest-params
-
-    var args = arguments;
-
-    var functionCall = function functionCall() {
-      return fn.apply(self, args);
-    };
-
-    clearTimeout(timeout);
-    timeout = setTimeout(functionCall, time);
-  };
-}
-
-function noop() {}
-
-function getCurrentScriptUrl(moduleId) {
-  var src = srcByModuleId[moduleId];
-
-  if (!src) {
-    if (document.currentScript) {
-      src = document.currentScript.src;
+  if (topOfWindow > oldScroll) {
+    // scroll down
+    if (topOfWindow > 0) {
+      if (nav.classList.contains("fix")) nav.classList.remove("fix"); // if (nav.style.position !== "absolute") nav.style.position = "absolute";
     } else {
-      var scripts = document.getElementsByTagName('script');
-      var lastScriptTag = scripts[scripts.length - 1];
-
-      if (lastScriptTag) {
-        src = lastScriptTag.src;
-      }
+      if (!nav.classList.contains("fix")) nav.classList.add("fix"); // if (nav.style.position !== "fixed") nav.style.position = "fixed";
     }
-
-    srcByModuleId[moduleId] = src;
-  }
-
-  return function (fileMap) {
-    if (!src) {
-      return null;
-    }
-
-    var splitResult = src.split(/([^\\/]+)\.js$/);
-    var filename = splitResult && splitResult[1];
-
-    if (!filename) {
-      return [src.replace('.js', '.css')];
-    }
-
-    if (!fileMap) {
-      return [src.replace('.js', '.css')];
-    }
-
-    return fileMap.split(',').map(function (mapRule) {
-      var reg = new RegExp("".concat(filename, "\\.js$"), 'g');
-      return normalizeUrl(src.replace(reg, "".concat(mapRule.replace(/{fileName}/g, filename), ".css")));
-    });
-  };
-}
-
-function updateCss(el, url) {
-  if (!url) {
-    if (!el.href) {
-      return;
-    } // eslint-disable-next-line
-
-
-    url = el.href.split('?')[0];
-  }
-
-  if (!isUrlRequest(url)) {
-    return;
-  }
-
-  if (el.isLoaded === false) {
-    // We seem to be about to replace a css link that hasn't loaded yet.
-    // We're probably changing the same file more than once.
-    return;
-  }
-
-  if (!url || !(url.indexOf('.css') > -1)) {
-    return;
-  } // eslint-disable-next-line no-param-reassign
-
-
-  el.visited = true;
-  var newEl = el.cloneNode();
-  newEl.isLoaded = false;
-  newEl.addEventListener('load', function () {
-    if (newEl.isLoaded) {
-      return;
-    }
-
-    newEl.isLoaded = true;
-    el.parentNode.removeChild(el);
-  });
-  newEl.addEventListener('error', function () {
-    if (newEl.isLoaded) {
-      return;
-    }
-
-    newEl.isLoaded = true;
-    el.parentNode.removeChild(el);
-  });
-  newEl.href = "".concat(url, "?").concat(Date.now());
-
-  if (el.nextSibling) {
-    el.parentNode.insertBefore(newEl, el.nextSibling);
   } else {
-    el.parentNode.appendChild(newEl);
-  }
-}
-
-function getReloadUrl(href, src) {
-  var ret; // eslint-disable-next-line no-param-reassign
-
-  href = normalizeUrl(href, {
-    stripWWW: false
-  }); // eslint-disable-next-line array-callback-return
-
-  src.some(function (url) {
-    if (href.indexOf(src) > -1) {
-      ret = url;
-    }
-  });
-  return ret;
-}
-
-function reloadStyle(src) {
-  if (!src) {
-    return false;
-  }
-
-  var elements = document.querySelectorAll('link');
-  var loaded = false;
-  forEach.call(elements, function (el) {
-    if (!el.href) {
-      return;
-    }
-
-    var url = getReloadUrl(el.href, src);
-
-    if (!isUrlRequest(url)) {
-      return;
-    }
-
-    if (el.visited === true) {
-      return;
-    }
-
-    if (url) {
-      updateCss(el, url);
-      loaded = true;
-    }
-  });
-  return loaded;
-}
-
-function reloadAll() {
-  var elements = document.querySelectorAll('link');
-  forEach.call(elements, function (el) {
-    if (el.visited === true) {
-      return;
-    }
-
-    updateCss(el);
-  });
-}
-
-function isUrlRequest(url) {
-  // An URL is not an request if
-  // It is not http or https
-  if (!/^https?:/i.test(url)) {
-    return false;
-  }
-
-  return true;
-}
-
-module.exports = function (moduleId, options) {
-  if (noDocument) {
-    console.log('no window.document found, will not HMR CSS');
-    return noop;
-  }
-
-  var getScriptSrc = getCurrentScriptUrl(moduleId);
-
-  function update() {
-    var src = getScriptSrc(options.filename);
-    var reloaded = reloadStyle(src);
-
-    if (options.locals) {
-      console.log('[HMR] Detected local css modules. Reload all css');
-      reloadAll();
-      return;
-    }
-
-    if (reloaded) {
-      console.log('[HMR] css reload %s', src.join(' '));
+    // scroll up
+    if (topOfWindow > 0) {
+      if (!nav.classList.contains("fix")) nav.classList.add("fix"); // if (nav.style.position !== "fixed") nav.style.position = "fixed";
     } else {
-      console.log('[HMR] Reload all css');
-      reloadAll();
+      if (nav.classList.contains("fix")) nav.classList.remove("fix"); // if (nav.style.position !== "absolute") nav.style.position = "absolute";
     }
   }
 
-  return debounce(update, 50);
+  oldScroll = topOfWindow;
 };
 
-/***/ }),
+window.addEventListener("load", function () {
+  console.log(11);
+  var loadingElement = document.getElementById("loading");
+  loadingElement.style.display = "none";
+});
+document.addEventListener("DOMContentLoaded", function () {
+  var closes = document.querySelectorAll('.close-side-nav');
+  Array.from(closes).forEach(function (item) {
+    item.addEventListener("click", function () {
+      document.querySelector('.side-nav').classList.toggle("active");
+      document.querySelector('.wrapper').classList.toggle("active");
+    });
+  });
+  document.addEventListener("click", function (e) {
+    var clickPosition = e.x;
+    var windowWidth = window.innerWidth;
+    var sideNavWidth = 280;
 
-/***/ 563:
-/***/ ((module) => {
-
-
-/* eslint-disable */
-
-function normalizeUrl(pathComponents) {
-  return pathComponents.reduce(function (accumulator, item) {
-    switch (item) {
-      case '..':
-        accumulator.pop();
-        break;
-
-      case '.':
-        break;
-
-      default:
-        accumulator.push(item);
+    if (clickPosition < windowWidth - sideNavWidth) {
+      document.querySelector('.side-nav').classList.remove("active");
+      document.querySelector('.wrapper').classList.remove("active");
     }
-
-    return accumulator;
-  }, []).join('/');
-}
-
-module.exports = function (urlString) {
-  urlString = urlString.trim();
-
-  if (/^data:/i.test(urlString)) {
-    return urlString;
-  }
-
-  var protocol = urlString.indexOf('//') !== -1 ? urlString.split('//')[0] + '//' : '';
-  var components = urlString.replace(new RegExp(protocol, 'i'), '').split('/');
-  var host = components[0].toLowerCase().replace(/\.$/, '');
-  components[0] = '';
-  var path = normalizeUrl(components);
-  return protocol + host + path;
-};
-
-/***/ }),
-
-/***/ 992:
-/***/ ((module, __unused_webpack___webpack_exports__, __webpack_require__) => {
-
-// extracted by mini-css-extract-plugin
-
-    if(true) {
-      // 1623243489347
-      var cssReload = __webpack_require__(255)(module.id, {"locals":false});
-      module.hot.dispose(cssReload);
-      module.hot.accept(undefined, cssReload);
-    }
-  
+  });
+});
 
 /***/ })
 
@@ -300,7 +74,7 @@ module.exports = function (urlString) {
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
+/******/ 			// no module.id needed
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
@@ -350,12 +124,12 @@ module.exports = function (urlString) {
 /******/ 	
 /******/ 	/* webpack/runtime/get update manifest filename */
 /******/ 	(() => {
-/******/ 		__webpack_require__.hmrF = () => ("styles." + __webpack_require__.h() + ".hot-update.json");
+/******/ 		__webpack_require__.hmrF = () => ("app." + __webpack_require__.h() + ".hot-update.json");
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("8d8c3aba0b6ed119dc1a")
+/******/ 		__webpack_require__.h = () => ("161ef98c024b51f46abc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -906,7 +680,7 @@ module.exports = function (urlString) {
 /******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
-/******/ 			532: 0
+/******/ 			143: 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -1416,8 +1190,8 @@ module.exports = function (urlString) {
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(992);
+/******/ 	var __webpack_exports__ = __webpack_require__(54);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=styles.bundle.0586aa071c165fe32e67.js.map
+//# sourceMappingURL=app.bundle.1739ca9a4d57e65251fa.js.map
